@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Crucial Viewport Tag for Mobile Responsiveness & Fit -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Happy Birthday Rasmalai 💕</title>
+
+  <!-- External CDNs -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Poppins:wght@300;400;600&family=Sacramento&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-pink: #ff85a1;
+      --soft-pink: #fbb1bd;
+      --bg-pink: #ffe5ec;
+      --kuromi-purple: #2b1055;
+      --spidey-red: #ff4d6d;
+      --card-bg: #ffffff;
+      --text-dark: #331832;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-pink);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+      position: relative;
+      padding: 10px;
+    }
+
+    /* Web Overlay Animation Canvas */
+    #web-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* Page View Management */
+    .page {
+      display: none;
+      text-align: center;
+      animation: fadeIn 0.4s ease-in-out forwards;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mobile Login Box */
+    .login-box {
+      background: rgba(255, 255, 255, 0.98);
+      border: 3px solid var(--primary-pink);
+      border-radius: 24px;
+      padding: 28px 20px;
+      box-shadow: 0 10px 25px rgba(255, 133, 161, 0.3);
+      margin: 0 auto;
+    }
+
+    .login-box h1 {
+      font-family: 'Fredoka', cursive;
+      color: var(--kuromi-purple);
+      font-size: 1.6rem;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 20px;
+      border: 2px solid var(--soft-pink);
+      border-radius: 50px;
+      outline: none;
+      font-size: 1rem;
+      text-align: center;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+      background: #fafafa;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--spidey-red);
+      background: #ffffff;
+      box-shadow: 0 0 10px rgba(255, 77, 109, 0.2);
+    }
+
+    .btn {
+      width: 100%;
+      min-height: 48px;
+      background: linear-gradient(135deg, var(--primary-pink), var(--spidey-red));
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255, 77, 109, 0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.15s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .hint-container {
+      display: none;
+      margin-top: 15px;
+      animation: fadeIn 0.4s ease-in;
+    }
+
+    .hint-msg {
+      color: var(--kuromi-purple);
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: #f0e6ff;
+      padding: 10px 16px;
+      border-radius: 20px;
+      display: inline-block;
+      border: 1px dashed var(--kuromi-purple);
+    }
+
+    .error-msg {
+      color: var(--spidey-red);
+      font-size: 0.85rem;
+      margin-top: 10px;
+      display: none;
+      font-weight: 500;
+    }
+
+    /* Fixed Background Audio Bar */
+    .music-bar {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+      border: 2px solid var(--soft-pink);
+    }
+
+    .music-info {
+      font-size: 0.8rem;
+      text-align: left;
+    }
+
+    .music-btn {
+      background: var(--soft-pink);
+      color: var(--kuromi-purple);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      min-height: 36px;
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+      border: 1px solid rgba(255, 133, 161, 0.2);
+    }
+
+    .section-title {
+      font-family: 'Fredoka', cursive;
+      color: var(--spidey-red);
+      margin-bottom: 10px;
+      font-size: 1.25rem;
+    }
+
+    /* Page 1 Interactive Elements */
+    .cake-container {
+      padding: 15px 0;
+    }
+
+    .cake {
+      font-size: 4.5rem;
+      cursor: pointer;
+      user-select: none;
+      display: inline-block;
+      transition: transform 0.2s;
+    }
+
+    .cake:active {
+      transform: scale(0.95);
+    }
+
+    /* Reason Generator Box */
+    .reason-box {
+      background: #fff5f7;
+      border-radius: 14px;
+      padding: 16px;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      font-style: italic;
+      font-size: 0.9rem;
+      color: #444;
+      border: 1px dashed var(--soft-pink);
+    }
+
+    /* Theme Feature Cards Grid */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .theme-card {
+      background: #fcf4f8;
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+      border: 1px solid #f2d6e3;
+    }
+
+    .theme-card .emoji {
+      font-size: 2rem;
+      margin-bottom: 6px;
+    }
+
+    .theme-card h4 {
+      font-size: 0.85rem;
+      color: var(--kuromi-purple);
+      margin-bottom: 4px;
+    }
+
+    .theme-card p {
+      font-size: 0.75rem;
+      color: #666;
+      line-height: 1.3;
+    }
+
+    /* Voice Note / Cassette Card */
+    .cassette-card {
+      background: linear-gradient(135deg, #2b1055, #4a154b);
+      color: white;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 20px rgba(43, 16, 85, 0.25);
+      text-align: left;
+    }
+
+    .cassette-title {
+      font-family: 'Fredoka', cursive;
+      color: #fbb1bd;
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .voice-transcript {
+      background: rgba(255, 255, 255, 0.08);
+      border-left: 3px solid var(--primary-pink);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin-top: 12px;
+      font-style: italic;
+      color: #ffe5ec;
+    }
+
+    .audio-player-custom {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 30px;
+      outline: none;
+    }
+
+    /* Touch Navigation Buttons */
+    .nav-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: space-between;
+    }
+
+    .nav-btn {
+      flex: 1;
+      min-height: 46px;
+      background: var(--kuromi-purple);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(43, 16, 85, 0.2);
+    }
+
+    .nav-btn.next {
+      background: linear-gradient(135deg, var(--primary-pink), var(--spidey-red));
+    }
+
+    .nav-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Fallback Audio Visual Play Button */
+    .play-audio-btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--spidey-red);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Web Animation Canvas Overlay -->
+  <canvas id="web-canvas"></canvas>
+
+  <div class="app-container">
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="page active">
+      <div class="login-box">
+        <div style="font-size: 2.8rem; margin-bottom: 8px;">🕷️🖤🌸</div>
+        <h1>Secret Birthday Portal</h1>
+        <p class="subtitle">Enter your secret nickname to unlock your birthday gift!</p>
+
+        <input type="text" id="nickname-input" placeholder="Type nickname here..." autocomplete="off" autocorrect="off" autocapitalize="none" />
+        <button class="btn" onclick="checkNickname()">Unlock Heart 💕</button>
+
+        <p id="error-msg" class="error-msg">Hmm, that's not what I call you! Try again 🖤</p>
+
+        <!-- Hint shown ONLY AFTER wrong attempt -->
+        <div id="hint-container" class="hint-container">
+          <p class="hint-msg">💡 Hint: sweetu you can do it!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APP DASHBOARD -->
+    <div id="dashboard" style="display: none;">
+
+      <!-- PERSISTENT BACKGROUND MUSIC BAR -->
+      <div class="music-bar">
+        <div class="music-info">
+          <b>🎵 Soundtrack:</b> Birthday Melody<br/>
+          <span style="color:#777; font-size:0.75rem;">Romantic Background Ambience</span>
+        </div>
+        <!-- External Web Audio File with User Tap-to-Play initialization for iOS -->
+        <audio id="bg-music" loop preload="auto">
+          <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+        </audio>
+        <button onclick="toggleMusic()" id="music-btn" class="music-btn">▶️ Play</button>
+      </div>
+
+      <!-- PAGE 1: WISH & CAKE -->
+      <div id="page-1" class="page active">
+        <div class="card" style="border-left: 5px solid var(--kuromi-purple);">
+          <h2 style="font-family:'Fredoka', cursive; color:var(--kuromi-purple); font-size:1.5rem;">Happy Birthday, Rasmalai! 🎉</h2>
+          <p style="font-size:0.85rem; color:#666; margin-top:4px;">My sweet Kuromi & web-slinging Spider-Girl 🖤🌸</p>
+          <div style="display:inline-block; background:#ffe0e9; color:var(--spidey-red); padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; margin-top:10px;">
+            ✈️ Long Distance, Connected by Heart 💖
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">Make a Wish! 🎂</div>
+          <p style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">Tap the birthday cake to blow out the candle!</p>
+          <div class="cake-container">
+            <div class="cake" id="cake-btn" onclick="blowCandle()">🎂</div>
+          </div>
+          <p id="wish-msg" style="margin-top: 6px; font-weight: 600; color: var(--spidey-red); display: none; font-size: 0.9rem;">
+            ✨ Wish made! You are my greatest gift 💕
+          </p>
+        </div>
+
+        <div class="nav-container">
+          <button class="nav-btn next" onclick="goToPage(2)">Next: Why I Love You 💖 👉</button>
+        </div>
+      </div>
+
+      <!-- PAGE 2: REASONS & KUROMI/SPIDEY THEME CARDS -->
+      <div id="page-2" class="page">
+        <!-- Reason Generator -->
+        <div class="card">
+          <div class="section-title">Why I Love You 💌</div>
+          <div class="reason-box" id="reason-display">
+            Tap the button below to reveal a reason!
+          </div>
+          <button class="btn" style="min-height:42px; font-size: 0.85rem;" onclick="nextReason()">New Reason ✨</button>
+        </div>
+
+        <!-- Theme Cards -->
+        <div class="card">
+          <div class="section-title">Our Theme 🖤🕷️</div>
+          <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">Special elements crafted just for you:</p>
+
+          <div class="theme-grid">
+            <div class="theme-card">
+              <div class="emoji">🖤</div>
+              <h4>Kuromi Mode</h4>
+              <p>Cute, sassy, and completely adorable!</p>
+            </div>
+            <div class="theme-card">
+              <div class="emoji">🕷️</div>
+              <h4>Spider-Girl</h4>
+              <p>You caught my heart in your web forever.</p>
+            </div>
+            <div class="theme-card">
+              <div class="emoji">🍯</div>
+              <h4>Rasmalai</h4>
+              <p>The sweetest girl in the entire world.</p>
+            </div>
+            <div class="theme-card">
+              <div class="emoji">✈️</div>
+              <h4>LDR Strong</h4>
+              <p>No distance can ever change my love.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-container">
+          <button class="nav-btn" onclick="goToPage(1)">👈 Back</button>
+          <button class="nav-btn next" onclick="goToPage(3)">Next: Voice Note 🎙️ 👉</button>
+        </div>
+      </div>
+
+      <!-- PAGE 3: VOICE NOTE & LETTER -->
+      <div id="page-3" class="page">
+
+        <!-- Voice Note Card -->
+        <div class="cassette-card">
+          <div class="cassette-title">
+            <span>🎙️</span>
+            <span>Audio Voice Note</span>
+          </div>
+          <p style="font-size: 0.8rem; color: #ffd6e0;">Tap play below to hear my message for you:</p>
+
+          <!-- Audio Element with Fallback Handler -->
+          <audio id="voice-note-audio" controls class="audio-player-custom">
+            <!-- Replace 'voice-note.mp3' with your file or keep external fallback audio -->
+            <source src="WhatsApp Audio 2026-10-22 at 12.30.32 AM.mp4" type="audio/mp4">
+            <source src="voice-note.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+          </audio>
+
+          <button class="play-audio-btn" onclick="playVoiceNoteFallback()">🔊 Listen To Voice Note</button>
+
+          <!-- Full Voice Transcript -->
+          <div class="voice-transcript">
+            "Hey... Just wanted to send you my voice on a special day, so you know I'm right there with you. Happy Birthday my love, you bring so much joy into my life and I am so grateful for you. I hope your birthday is as sweet and incredible as you are. I love you so, so much."
+          </div>
+        </div>
+
+        <!-- Long Distance Love Letter -->
+        <div class="card" style="text-align: left;">
+          <div class="section-title" style="text-align: center;">My Heart For You 📝</div>
+          <p style="font-size: 0.9rem; line-height: 1.6; color: #444;">
+            Happy Birthday my sweet <b>Rasmalai</b>! 💖<br/><br/>
+            Even though we are miles apart today, you are the closest person to my heart. Thank you for being the sweetest part of my life, my best friend, and my favorite person.<br/><br/>
+            I can't wait until the day I get to pull you into a huge hug and celebrate together in person. Until then, sending you endless hugs, kisses, and all my love! 🥰✨
+          </p>
+        </div>
+
+        <div class="nav-container">
+          <button class="nav-btn" onclick="goToPage(2)">👈 Back</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    const allowedNicknames = ["rasmalai"];
+    const loveReasons = [
+      "Your smile lights up my entire day, even through a phone screen.",
+      "You're as sweet as actual Rasmalai! 🍯",
+      "How cute and cute-sassy you get in Kuromi mode! 🖤",
+      "The way you care about me makes me feel like the luckiest person.",
+      "You're my Mary Jane and I'm your Spider-Man! 🕸️❤️",
+      "Hearing your voice is my favorite part of every day.",
+      "Just thinking about you instantly puts a big smile on my face."
+    ];
+
+    let currentPage = 1;
+    let audioContext = null;
+
+    // Mobile Audio Unlocker for Safari & Android
+    function initMobileAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+    }
+
+    function checkNickname() {
+      initMobileAudio();
+      const input = document.getElementById("nickname-input").value.trim().toLowerCase();
+      const errorMsg = document.getElementById("error-msg");
+      const hintContainer = document.getElementById("hint-container");
+
+      if (allowedNicknames.includes(input)) {
+        triggerWebTransition(() => {
+          document.getElementById("login-screen").style.display = "none";
+          document.getElementById("dashboard").style.display = "block";
+
+          // Try background music play
+          const music = document.getElementById("bg-music");
+          const musicBtn = document.getElementById("music-btn");
+          music.play().then(() => {
+            musicBtn.innerText = "⏸️ Pause";
+          }).catch(() => {
+            musicBtn.innerText = "▶️ Play";
+          });
+
+          confetti({ particleCount: 100, spread: 60, origin: { y: 0.6 } });
+        });
+      } else {
+        errorMsg.style.display = "block";
+        hintContainer.style.display = "block"; // Only display hint AFTER incorrect attempt
+      }
+    }
+
+    // Enter Key Trigger
+    document.getElementById("nickname-input").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") checkNickname();
+    });
+
+    function goToPage(pageNum) {
+      if (pageNum === currentPage) return;
+      triggerWebTransition(() => {
+        document.getElementById(`page-${currentPage}`).classList.remove("active");
+        document.getElementById(`page-${pageNum}`).classList.add("active");
+        currentPage = pageNum;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    /* Spider-Web Transition Effect */
+    function triggerWebTransition(callback) {
+      const canvas = document.getElementById("web-canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let progress = 0;
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      function drawWeb() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = "rgba(255, 77, 109, 0.85)";
+        ctx.lineWidth = 3;
+
+        const numRays = 10;
+        const maxRadius = Math.max(canvas.width, canvas.height);
+
+        for (let i = 0; i < numRays; i++) {
+          const angle = (i * Math.PI * 2) / numRays;
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.lineTo(
+            centerX + Math.cos(angle) * maxRadius * progress,
+            centerY + Math.sin(angle) * maxRadius * progress
+          );
+          ctx.stroke();
+        }
+
+        for (let r = 40; r < maxRadius * progress; r += 45) {
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        progress += 0.09;
+        if (progress <= 1) {
+          requestAnimationFrame(drawWeb);
+        } else {
+          setTimeout(() => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            callback();
+          }, 100);
+        }
+      }
+      drawWeb();
+    }
+
+    function toggleMusic() {
+      initMobileAudio();
+      const music = document.getElementById("bg-music");
+      const btn = document.getElementById("music-btn");
+
+      if (music.paused) {
+        music.play().then(() => {
+          btn.innerText = "⏸️ Pause";
+        }).catch((e) => console.log(e));
+      } else {
+        music.pause();
+        btn.innerText = "▶️ Play";
+      }
+    }
+
+    function blowCandle() {
+      document.getElementById("cake-btn").innerText = "🍰";
+      document.getElementById("wish-msg").style.display = "block";
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.5 } });
+    }
+
+    function nextReason() {
+      const display = document.getElementById("reason-display");
+      const randomIndex = Math.floor(Math.random() * loveReasons.length);
+      display.innerText = `"${loveReasons[randomIndex]}"`;
+    }
+
+    function playVoiceNoteFallback() {
+      initMobileAudio();
+      const voiceAudio = document.getElementById("voice-note-audio");
+      
+      // Pause background music while voice note plays
+      const bgMusic = document.getElementById("bg-music");
+      if (bgMusic) bgMusic.pause();
+      document.getElementById("music-btn").innerText = "▶️ Play";
+
+      voiceAudio.play().catch(() => {
+        // Fallback Web Audio synthesized soft melody if media fails on mobile
+        speakFallbackMessage();
+      });
+    }
+
+    // Web Audio API Synthesized fallback if mobile browser blocks external file
+    function speakFallbackMessage() {
+      if ('speechSynthesis' in window) {
+        const msg = new SpeechSynthesisUtterance("Happy Birthday my love, you bring so much joy into my life.");
+        msg.pitch = 1.1;
+        msg.rate = 0.9;
+        window.speechSynthesis.speak(msg);
+      }
+    }
+  </script>
+</body>
+</html>
